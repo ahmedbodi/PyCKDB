@@ -29,4 +29,16 @@ class MySQLMPOS(Database):
 	    return False
 
         def insert_shares(self, *args, **kwargs):
-	    print(args, kwargs)
+	    kwargs['lres'] = 'Y' if kwargs['lres'] == True else 'N'
+            connection = self.connect()
+            try:
+                with connection.cursor() as cursor:
+            	   cursor.execute("""INSERT INTO `shares` (time, rem_host, username, our_result, upstream_result, reason, solution, difficulty)
+                	VALUES  (FROM_UNIXTIME(%(time)s), %(host)s, %(uname)s, %(lres)s, 'N', %(reason)s, %(solution)s, %(difficulty)s)""", kwargs)
+		connection.commit()
+            except Exception as e:
+                self.logger.error(e)
+                return False
+            return False
+
+
