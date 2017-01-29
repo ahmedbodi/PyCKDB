@@ -1,0 +1,19 @@
+from Database.MySQLMPOS import MySQLMPOS
+import json
+import time
+import struct
+
+database = MySQLMPOS()
+
+def cmd_authorise(id, data, conn):
+    data = json.loads(data)
+    username = data['workername']
+    id = database.authorise(username=username)
+    result = "{0}.{1}.failed.DBE".format(id, int(time.time()))
+    if id > 0:
+       result = "{0}.{1}.ok.addrauth={2}".format(id, int(time.time()), json.dumps({'secondaryuserid': str(id), 'difficultydefault': 1}))
+    length = struct.pack("<I", len(result))
+    conn.send(length)
+    conn.send(result)
+    return
+
