@@ -1,12 +1,9 @@
 from Sockets.Listener import Listener
+from Arguments import parser
 from daemonize import Daemonize
 import logging
 import argparse
 import setproctitle
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--daemonize', type=bool)
-parser.add_argument('-v', '--verbose', default=False, type=bool)
 
 pid = "/opt/ckdb/PyCKDB.pid"
 

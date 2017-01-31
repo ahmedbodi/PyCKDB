@@ -13,6 +13,22 @@ class MySQLMPOS(Database):
                 cursorclass=pymysql.cursors.DictCursor)
 	    return connection
 
+	def get_uid(self, username):
+	    connection = self.connect()
+	    try:
+		with connection.cursor() as cursor:
+		   user = username.split('.', 1)[0]
+		   cursor.execute("SELECT id FROM accounts where username = %s", (uname,))
+        	   row = cursor.fetchone()
+		   if row is None:
+			return False
+		   else:
+			return row['id']
+		   return False
+	    except:
+		self.logger.error(e)
+		return False
+
 	def authorise(self, *args, **kwargs):
 	    self.logger.info("Checking Auth For User: {0}".format(kwargs['username']))
 	    connection = self.connect()
@@ -20,8 +36,15 @@ class MySQLMPOS(Database):
 		with connection.cursor() as cursor:
 		   cursor.execute("SELECT id FROM `pool_worker` WHERE `username` = %(username)s", kwargs)
 		   result = cursor.fetchone()
-		   if result is None:
-		      return 0
+		   if result is None and not kwarg['create_user']:
+			return 0
+		   elif result is None and kwargs['create_user']:
+			uid = self.get_uid(kwargs['username'])
+			if uid:
+        		   query = "INSERT INTO pool_worker (account_id, username, password) VALUES (%s, %s, 'x');", (uid, kwargs['username'])
+		           cursor.execute(query)
+			   connection.commit()
+			   return self.authorise()
 		   return result['id']
 	    except Exception as e:
 		self.logger.error(e)
