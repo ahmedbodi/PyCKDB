@@ -5,3 +5,4 @@ from WorkerStats import cmd_workerstats
 from AgeWorkInfo import cmd_ageworkinfo
 from Authorise import cmd_authorise
 from Shares import cmd_shares
+from Blocks import cmd_block
