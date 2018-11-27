@@ -30,7 +30,6 @@ class MySQLMPOS(Database):
 		return False
 
 	def authorise(self, *args, **kwargs):
-	    global e
 	    self.logger.info("Checking Auth For User: {0}".format(kwargs['username']))
 	    connection = self.connect()
 	    try:
@@ -50,7 +49,6 @@ class MySQLMPOS(Database):
 	    except Exception as e:
 		self.logger.error(e)
 		return False
-	 
 	    return False
 
         def insert_shares(self, *args, **kwargs):
