@@ -18,9 +18,12 @@ class MySQLMPOS(Database):
 	    try:
 		with connection.cursor() as cursor:
 		   user = username.split('.', 1)[0]
-		   cursor.execute("SELECT `id` FROM `accounts` where `username`='{0}'".format(user))
+		   cursor.execute("SELECT `id`, `is_locked` FROM `accounts` where `username`='{0}'".format(user))
         	   row = cursor.fetchone()
 		   if row is None:
+			return False
+		   elif	row['is_locked'] == 2:
+			self.logger.error('banned')
 			return False
 		   else:
 			return row['id']
@@ -32,24 +35,24 @@ class MySQLMPOS(Database):
 	def authorise(self, *args, **kwargs):
 	    self.logger.info("Checking Auth For User: {0}".format(kwargs['username']))
 	    connection = self.connect()
-	    try:
+	    uid = self.get_uid(kwargs['username'])
+	    if uid:
+	     try:
 		with connection.cursor() as cursor:
 		   cursor.execute("SELECT id FROM `pool_worker` WHERE `username` = %(username)s", kwargs)
 		   result = cursor.fetchone()
 		   if result is None and not kwargs['create_user']:
 			return 0 
 		   elif result is None and kwargs['create_user']:
-			uid = self.get_uid(kwargs['username'])
-			if uid:
         		   query = "INSERT INTO pool_worker (account_id, username, password) VALUES ({}, '{}', 'x');".format(uid, kwargs['username'])
 		           cursor.execute(query)
 			   connection.commit()
 			   return self.authorise()
 		   return result['id']
-	    except Exception as e:
+	     except Exception as e:
 		self.logger.error(e)
 		return False
-	    return False
+	     return False
 
         def insert_shares(self, *args, **kwargs):
 	    kwargs['lres'] = 'Y' if kwargs['lres'] == True else 'N'
