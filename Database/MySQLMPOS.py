@@ -28,8 +28,7 @@ class MySQLMPOS(Database):
 		   else:
 			return row['id']
 		   return False
-	    except Exception as e:
-		self.logger.error(e)
+	    except Exception :
 		return False
 
 	def authorise(self, *args, **kwargs):
@@ -48,6 +47,7 @@ class MySQLMPOS(Database):
         		   query = "INSERT INTO pool_worker (`account_id`, `username`, `password`) VALUES ({}, '{}', 'x');".format(uid, kwargs['username'])
 		           cursor.execute(query)
 			   connection.commit()
+			   self.logger.info("worker {} created".format(kwargs['uname']))
 			   return self.authorise()
 		   return result['id']
 	     except Exception as e:
@@ -66,7 +66,7 @@ class MySQLMPOS(Database):
 			uid = self.get_uid(kwargs['uname'])
                         query = "INSERT INTO pool_worker (`account_id`, `username`, `password`) VALUES ({}, '{}', 'x');".format(uid, kwargs['uname'])
                         cursor.execute(query)
-			self.logger.error("worker {} created".format(kwargs['uname']))
+			self.logger.info("worker {} created".format(kwargs['uname']))
             	   cursor.execute("""INSERT INTO `shares` (`time`, `rem_host`, `username`, `our_result`, `upstream_result`, `reason`, `solution`, `difficulty`)
                 	VALUES  (FROM_UNIXTIME(%(time)s), %(host)s, %(uname)s, %(lres)s, 'N', %(reason)s, %(solution)s, %(difficulty)s)""", kwargs)
 		   cursor.execute("UPDATE `pool_worker` SET `difficulty`=%(difficulty)s WHERE `username`=%(uname)s", kwargs)
