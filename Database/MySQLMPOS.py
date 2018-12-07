@@ -23,7 +23,7 @@ class MySQLMPOS(Database):
 		   if row is None:
 			return False
 		   elif	row['is_locked'] == 2:
-			self.logger.error('banned')
+			self.logger.error("User {} is banned by admin".format(user))
 			return False
 		   else:
 			return row['id']
@@ -39,12 +39,13 @@ class MySQLMPOS(Database):
 	    if uid:
 	     try:
 		with connection.cursor() as cursor:
-		   cursor.execute("SELECT id FROM `pool_worker` WHERE `username` = %(username)s", kwargs)
+		   cursor.execute("SELECT `id` FROM `pool_worker` WHERE `username` = %(usernawe)s", kwargs)
 		   result = cursor.fetchone()
+		   self.logger.info(kwargs)
 		   if result is None and not kwargs['create_user']:
 			return 0 
 		   elif result is None and kwargs['create_user']:
-        		   query = "INSERT INTO pool_worker (account_id, username, password) VALUES ({}, '{}', 'x');".format(uid, kwargs['username'])
+        		   query = "INSERT INTO pool_worker (`account_id`, `username`, `password`) VALUES ({}, '{}', 'x');".format(uid, kwargs['username'])
 		           cursor.execute(query)
 			   connection.commit()
 			   return self.authorise()
@@ -59,7 +60,14 @@ class MySQLMPOS(Database):
             connection = self.connect()
             try:
                 with connection.cursor() as cursor:
-            	   cursor.execute("""INSERT INTO `shares` (time, rem_host, username, our_result, upstream_result, reason, solution, difficulty)
+                   cursor.execute("SELECT `id` FROM `pool_worker` WHERE `username` = %(uname)s", kwargs)
+                   result = cursor.fetchone()
+                   if result is None    :
+			uid = self.get_uid(kwargs['uname'])
+                        query = "INSERT INTO pool_worker (`account_id`, `username`, `password`) VALUES ({}, '{}', 'x');".format(uid, kwargs['uname'])
+                        cursor.execute(query)
+			self.logger.error("worker {} created".format(kwargs['uname']))
+            	   cursor.execute("""INSERT INTO `shares` (`time`, `rem_host`, `username`, `our_result`, `upstream_result`, `reason`, `solution`, `difficulty`)
                 	VALUES  (FROM_UNIXTIME(%(time)s), %(host)s, %(uname)s, %(lres)s, 'N', %(reason)s, %(solution)s, %(difficulty)s)""", kwargs)
 		   cursor.execute("UPDATE `pool_worker` SET `difficulty`=%(difficulty)s WHERE `username`=%(uname)s", kwargs)
 		connection.commit()
