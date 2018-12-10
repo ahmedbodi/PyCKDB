@@ -44,7 +44,7 @@ class MySQLMPOS(Database):
 		   if result is None and not kwargs['create_user']:
 			return 0 
 		   elif result is None and kwargs['create_user']:
-			   self.logger.info("User  {} ".format(kwargs['username']))
+			   self.logger.info("User  {} authorized, but have no workers.".format(kwargs['username']))
 			   return self.authorise()
 		   return result['id']
 	     except Exception as e:
