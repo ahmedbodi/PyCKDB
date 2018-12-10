@@ -38,16 +38,13 @@ class MySQLMPOS(Database):
 	    if uid:
 	     try:
 		with connection.cursor() as cursor:
-		   cursor.execute("SELECT `id` FROM `pool_worker` WHERE `username` = %(usernawe)s", kwargs)
+		   cursor.execute("SELECT `id` FROM `pool_worker` WHERE `username` = %(username)s", kwargs)
 		   result = cursor.fetchone()
 		   self.logger.info(kwargs)
 		   if result is None and not kwargs['create_user']:
 			return 0 
 		   elif result is None and kwargs['create_user']:
-        		   query = "INSERT INTO pool_worker (`account_id`, `username`, `password`) VALUES ({}, '{}', 'x');".format(uid, kwargs['username'])
-		           cursor.execute(query)
-			   connection.commit()
-			   self.logger.info("worker {} created".format(kwargs['uname']))
+			   self.logger.info("User  {} ".format(kwargs['username']))
 			   return self.authorise()
 		   return result['id']
 	     except Exception as e:
