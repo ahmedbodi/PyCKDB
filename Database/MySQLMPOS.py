@@ -43,7 +43,6 @@ class MySQLMPOS(Database):
 		with connection.cursor() as cursor:
 		   cursor.execute("SELECT `id` FROM `pool_worker` WHERE `username` = %(username)s", kwargs)
 		   result = cursor.fetchone()
-		   self.logger.info(kwargs)
 		   if result is None and not kwargs['create_user']:
 			return 0 
 		   elif result is None and kwargs['create_user']:
