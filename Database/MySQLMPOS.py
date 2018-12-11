@@ -28,7 +28,8 @@ class MySQLMPOS(Database):
 		   else:
 			return row['id']
 		   return False
-	    except Exception :
+	    except Exception as exc:
+	        self.logger.error(exc)
 		return False
 
 	def authorise(self, *args, **kwargs):
