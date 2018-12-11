@@ -35,6 +35,8 @@ class MySQLMPOS(Database):
 	def authorise(self, *args, **kwargs):
 	    self.logger.info("Checking Auth For User: {0}".format(kwargs['username']))
 	    connection = self.connect()
+            if not 'username' in kwargs:
+                return 0
 	    uid = self.get_uid(kwargs['username'])
 	    if uid:
 	     try:
